@@ -8,7 +8,7 @@ mapping_dict = {
 pygame.joystick.init()
 joysticks = [pygame.joystick.Joystick(x) for x in range (pygame.joystick.get_count())]
 
-print(joysticks[0].get_numhats())
+#print(joysticks[0].get_numhats())
 class Player(object):
     
     def __init__(self):
@@ -34,7 +34,8 @@ y = 0
 speed = 0
 xVel = 0
 yVel = 0
-
+rx = 0
+ry = 0
 
 print("Right Trigger:", pygame.joystick.Joystick(0).get_axis(5))
 
@@ -59,8 +60,8 @@ while True or KeyboardInterrupt:
                 print(event)
             # elif round(pygame.joystick.Joystick(0).get_axis(1) * 1000) == 1:
             # elif round(pygame.joystick.Joystick(0).get_axis(0) * 1000) == 1:
-            xVel = speed * abs(round(pygame.joystick.Joystick(0).get_axis(0)))
-            yVel = speed * abs(round(pygame.joystick.Joystick(0).get_axis(1)))
+            # xVel = speed * abs(round(pygame.joystick.Joystick(0).get_axis(0))) -- Left trigger speed
+            # yVel = speed * abs(round(pygame.joystick.Joystick(0).get_axis(1))) -- Left triger speed up
             # print("Y", y)
             # print(x)
             # print(speed)
@@ -71,12 +72,31 @@ while True or KeyboardInterrupt:
                 print("X position", x + xVel)
                 print("Y position", y + yVel)
                 
-        
+        # Following is right stick controls
+        if event.type == pygame.JOYAXISMOTION:
+            ry = pygame.joystick.Joystick(0).get_axis(4)  
+            rx = pygame.joystick.Joystick(0).get_axis(3) 
+           
+            if (rx) > 0.05:
+             print(event)
+           #  print ("Moved right :" + str(rx))
+            elif (rx) < -0.05:
+             print(event)
+            # print("Moved left :" + str(rx))
+            if (ry) > 0.05: # Issue calculating y axis
+             print(event)
+            # print ("Moved Up :" + str(ry))
+            elif (ry) < -0.05:
+             print(event)
+             print("Moved down :" + str(ry))
+           
+    # End of New code
+
         if event.type == pygame.JOYHATMOTION:   
             # print(pygame.joystick.Joystick(0).get_hat(0)[0])
-            if pygame.joystick.Joystick(0).get_hat(0)[0] == 1:
-                print("MOVING LEFT")
             if pygame.joystick.Joystick(0).get_hat(0)[0] == -1:
+                print("MOVING LEFT")
+            if pygame.joystick.Joystick(0).get_hat(0)[0] == 1:
                 print("MOVING RIGHT")
             if pygame.joystick.Joystick(0).get_hat(0)[1] == 1:
                 print("MOVING UP")
@@ -147,6 +167,7 @@ while True or KeyboardInterrupt:
     pygame.display.update()
     
     clock.tick(180)
+
+    
                 
 #print(joysticks)
-
