@@ -22,15 +22,15 @@ def arcadeDrive(x,y) -> list[float]:
     out = []
     # set speed according to the quadrant that the values are in
     if x >= 0:
-        if y >= 0:  # I quadrant
-            out = [maximum, difference, difference, maximum]
-        else:            # II quadrant
-            out = [total, maximum, maximum, total]
+        if y >= 0:  # controller: I quadrant real: quadrant III
+            out = [-difference, maximum, maximum, -difference]
+        else:       # controller: III quadrant real: II
+            out = [-maximum, total, total, -maximum]
     else:
-        if y >= 0:  # IV quadrant
-            out = [total, -maximum, -maximum, total]
-        else:            # III quadrant
-            out = [-maximum, difference, difference, -maximum]
+        if y >= 0:  # controller: II quadrant real: IV quadrant
+            out = [maximum, total, total, maximum]
+        else:       # controller: IV quadrant real: II quadrant
+            out = [ -difference, -maximum, -maximum, -difference]
     return out
 
     """
@@ -43,6 +43,8 @@ def arcadeDrive(x,y) -> list[float]:
 
     """
 
+
+
 class Player(object):
 
     def __init__(self):
@@ -50,7 +52,7 @@ class Player(object):
         self.color = "white"
 
     def move(self, x, y):
-        self.player.move_ip((x, y))
+        self.player.move_ip((1.1 * x, 1.1* y))
 
     def change_color(self, color):
         self.color = color
@@ -71,57 +73,49 @@ xVel = 0
 yVel = 0
 rx = 0
 ry = 0
+running = True
+
+leftSim = 0.0
+rightSim = 0.0
+
+def drawSim(x,y):
+    inputs = arcadeDrive(x,y)
+    leftSim = inputs[0]
+    rightSim = inputs[1]
+    width = 800
+    height = 600
+    pygame.draw.line(screen,"red",pygame.Vector2(width/2 - 50,height/2), pygame.Vector2(width/2 - 50, leftSim * 100 + height/2), 25)
+    pygame.draw.line(screen,"blue",pygame.Vector2(width/2 + 50,height/2), pygame.Vector2(width/2 + 50, rightSim * 100 + height/2), 25)
 
 # print("Right Trigger:", pygame.joystick.Joystick(0).get_axis(5))
 
 # controller input
-while True or KeyboardInterrupt:
+while running or KeyboardInterrupt:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            running = False
+            pygame.quit()
             break
 
-        if event.type == pygame.JOYAXISMOTION:
+        if event.type == pygame.JOYAXISMOTION:            
             y = pygame.joystick.Joystick(0).get_axis(1)
             x = pygame.joystick.Joystick(0).get_axis(0)
             threshold = 0.1
             
-
             # Check and print the direction based on the axis values
-            if x < -threshold:  # Left movement
-                print(f"LEFT JOY Moving Left: {math.trunc(x* 100) / 100}")
-            elif x > threshold:  # Right movement
-                print(f"LEFT JOY Moving Right: {math.trunc(x* 100) / 100}")
+
+            # if x < -threshold:  # Left movement
+            #     print(f"LEFT JOY Moving Left: {math.trunc(x* 100) / 100}")
+            # elif x > threshold:  # Right movement
+            #     print(f"LEFT JOY Moving Right: {math.trunc(x* 100) / 100}")
             
-            if y < -threshold:  # Up movement
-                print(f"LEFT JOY Moving Up: {math.trunc(y* 100) / 100}")
-            elif y > threshold:  # Down movement
-                print(f"LEFT JOY Moving Down: {math.trunc(y* 100) / 100}")
+            # if y < -threshold:  # Up movement
+            #     print(f"LEFT JOY Moving Up: {math.trunc(y* 100) / 100}")
+            # elif y > threshold:  # Down movement
+            #     print(f"LEFT JOY Moving Down: {math.trunc(y* 100) / 100}")
+
             # print("Y", math.trunc(x* 100) / 100)
             # print("X", math.trunc(y* 100) / 100)
-            
-            lefttrigger = pygame.joystick.Joystick(0).get_axis(4)
-                # if speed < 5:
-                #     speed += 1
-            if lefttrigger > 0.1:
-                print('leftTrigger', {math.trunc(lefttrigger * 100) / 100})
-            righttrigger = pygame.joystick.Joystick(0).get_axis(5)
-                # if speed > 0:
-                #     speed -= 1
-            if righttrigger > 0.1:
-                print('rightTrigger', {math.trunc(righttrigger * 100) / 100})
-            # elif round(pygame.joystick.Joystick(0).get_axis(1) * 1000) == 1:
-            # elif round(pygame.joystick.Joystick(0).get_axis(0) * 1000) == 1:
-            # xVel = speed * abs(round(pygame.joystick.Joystick(0).get_axis(0))) -- Left trigger speed
-            # yVel = speed * abs(round(pygame.joystick.Joystick(0).get_axis(1))) -- Left triger speed up
-            # print("Y", y)
-            # print(x)
-            # print(speed)
-            if xVel > 0:
-                print("X position", x + xVel)
-                print("Y position", y + yVel)
-            if yVel > 0:
-                print("X position", x + xVel)
-                print("Y position", y + yVel)
 
         # Following is right stick controls
         if event.type == pygame.JOYAXISMOTION:
@@ -143,9 +137,7 @@ while True or KeyboardInterrupt:
                 # print(event)
                 print("RIGHT JOY Moved Up :", (math.trunc(ry * 100)/100))
 
-
         # End of New code
-
         if event.type == pygame.JOYHATMOTION:
             # print(pygame.joystick.Joystick(0).get_hat(0)[0])
             if pygame.joystick.Joystick(0).get_hat(0)[0] == -1:
@@ -177,47 +169,11 @@ while True or KeyboardInterrupt:
                 player.change_color("purple")
                 print("Button Right Bumper has been pressed")
 
-        # if event.type == pygame.KEYDOWN:
-        #     if event.key == pygame.K_UP:
-        #         print("GOING UP")
-        #         y = -2
-        #     if event.key == pygame.K_DOWN:
-        #         print("GOING DOWN")
-        #         y = 1
-        #     if event.key == pygame.K_RIGHT:
-        #         print("GOING UP")
-        #         x = 1
-        #     if event.key == pygame.K_LEFT:
-        #         print("GOING UP")
-        #         x = -1
-
-        # if event.type == pygame.KEYUP:
-        #     if event.key == pygame.K_UP:
-        #         print("Stopping")
-        #         y = 0
-        #     if event.key == pygame.K_DOWN:
-        #         print("Stopping")
-        #         y = 0
-        #     if event.key == pygame.K_RIGHT:
-        #         print("Stopping")
-        #         x = 0
-        #     if event.key == pygame.K_LEFT:
-        #         print("Stopping")
-        #         x = 0
-
-    # y = round(pygame.joystick.Joystick(0).get_axis(1) * 1000) /1000
-    # x = round(pygame.joystick.Joystick(0).get_axis(0) * 1000) /1000
-    # xVel = speed * abs(round(pygame.joystick.Joystick(0).get_axis(0)))
-    # yVel = speed * abs(round(pygame.joystick.Joystick(0).get_axis(1)))
-    # # print("Y", y)
-    # # print(x)
-    # # print(speed)
-    # print("X position", x + xVel)
-    # print("Y position", y + yVel)
-    player.move(x + xVel, y + yVel)
+    # player.move(x + xVel, y + yVel)
 
     screen.fill((0, 0, 0))
     player.draw(screen)
+    drawSim(x,y)
     pygame.display.update()
 
     clock.tick(180)
